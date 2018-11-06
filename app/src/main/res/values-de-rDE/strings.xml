@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Aruba Networks Login</string>
+    <string name="prompt_email">Email (für Gastzugang Auto-Login, optional)</string>
+    <string name="prompt_username">Benutzername</string>
+    <string name="prompt_password">Passwort</string>
+    <string name="action_save_creds">Zugangsdaten Speichern</string>
+    <string name="error_invalid_email">Diese E-Mail Addresse ist ungültig</string>
+    <string name="error_invalid_password">Das Passwort ist zu kurz</string>
+    <string name="error_incorrect_password">Das Passwort ist inkorrekt</string>
+    <string name="error_field_required">Dieses Feld muss ausgefüllt werden</string>
+    <string name="permission_rationale">Der Zugriff auf Kontakte wird benötigt um die E-Mail automatisch auszufüllen
+    </string>
+</resources>
