@@ -23,8 +23,14 @@ import android.widget.TextView
 
 import java.util.ArrayList
 import android.Manifest.permission.READ_CONTACTS
+import android.util.Log
 
 import kotlinx.android.synthetic.main.activity_login.*
+import java.io.BufferedReader
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
+import java.net.*
 
 /**
  * A login screen that offers login via email/password.
@@ -33,7 +39,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private var mAuthTask: UserLoginTask? = null
+    private var mAuthTask: CaptiveLoginTask? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -149,9 +155,9 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            /* showProgress(true)
-            mAuthTask = UserLoginTask(emailStr, passwordStr)
-            mAuthTask!!.execute(null as Void?) */
+            showProgress(true)
+            mAuthTask = CaptiveLoginTask(emailStr, userStr, passwordStr)
+            mAuthTask!!.execute(null as Void?)
         }
     }
 
@@ -242,30 +248,80 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         val IS_PRIMARY = 1
     }
 
+    fun streamToString(inputStream: InputStream): String {
+
+        val bufferReader = BufferedReader(InputStreamReader(inputStream))
+        var line: String
+        var result = ""
+
+        try {
+            line = bufferReader.readLine()
+            while (line != null) {
+                result += line
+                line = bufferReader.readLine()
+            }
+            inputStream.close()
+        } catch (ex: Exception) {
+
+        }
+
+        return result
+    }
+
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    inner class UserLoginTask internal constructor(private val mEmail: String, private val mPassword: String) : AsyncTask<Void, Void, Boolean>() {
+    inner class CaptiveLoginTask internal constructor(private val mEmail: String, private val mUsername: String, private val mPassword: String) : AsyncTask<Void, Void, Boolean>() {
 
         override fun doInBackground(vararg params: Void): Boolean? {
-            // TODO: attempt authentication against a network service.
-
             try {
-                // Simulate network access.
-                Thread.sleep(2000)
-            } catch (e: InterruptedException) {
-                return false
+                CookieHandler.setDefault(CookieManager(null, CookiePolicy.ACCEPT_ALL ))
+
+                Log.v(TAG, "Captive task started... Detecting portal")
+
+                var urlConnection = URL("http://detectportal.firefox.com").openConnection() as HttpURLConnection
+
+                urlConnection.connect()
+                var res = streamToString(urlConnection.inputStream)
+                if (res == "success") {
+                    Log.v(TAG, "No captive detected! Yay!")
+                    return true
+                }
+                urlConnection.disconnect()
+
+                var urlMatch = Regex("(http://detectportal.+)'").find(res)
+
+                if (urlMatch == null) {
+                    Log.v(TAG, "Not aruba captive!")
+                    return false
+                }
+
+                var extractedUrl = urlMatch.groupValues[1]
+                Log.v(TAG, "Extracted url $extractedUrl")
+
+                while (true) {
+                    Log.v(TAG, "Follow redirect... $extractedUrl")
+                    urlConnection = URL(extractedUrl).openConnection() as HttpURLConnection
+                    urlConnection.connect()
+                    extractedUrl = urlConnection.getHeaderField("Location") ?: break
+                    urlConnection.disconnect()
+                }
+
+                Log.v(TAG, "Final $extractedUrl")
+
+                var post = Regex("\\\\?.+").replace(extractedUrl, "")
+                Log.v(TAG, "Post $post")
+
+                urlConnection.setDoOutput(true)
+                var writer = OutputStreamWriter(urlConnection.getOutputStream())
+                writer.write("")
+                writer.flush()
+            } catch (ex: Exception) {
+                Log.e(TAG, ex.toString())
             }
 
-            return DUMMY_CREDENTIALS
-                    .map { it.split(":") }
-                    .firstOrNull { it[0] == mEmail }
-                    ?.let {
-                        // Account exists, return true if the password matches.
-                        it[1] == mPassword
-                    }
-                    ?: true
+            return false
         }
 
         override fun onPostExecute(success: Boolean?) {
@@ -298,5 +354,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
          * TODO: remove after connecting to a real authentication system.
          */
         private val DUMMY_CREDENTIALS = arrayOf("foo@example.com:hello", "bar@example.com:world")
+
+        private val TAG = "ARUBA_LOGIN"
     }
 }
