@@ -11,4 +11,6 @@
     <string name="error_field_required">Dieses Feld muss ausgefüllt werden</string>
     <string name="permission_rationale">Der Zugriff auf Kontakte wird benötigt um die E-Mail automatisch auszufüllen
     </string>
+    <string name="error_invalid_username">Der Benutzername ist ungültig</string>
+    <string name="saved_creds">Zugangsdaten gespeichert</string>
 </resources>

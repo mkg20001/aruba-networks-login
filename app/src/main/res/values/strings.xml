@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Aruba Networks Login</string>
     <!-- Strings related to login -->
-    <string name="prompt_email">Email (for guest auto-login, optionaL)</string>
+    <string name="prompt_email">Email (for guest auto-login, optional)</string>
     <string name="prompt_username">Username</string>
     <string name="prompt_password">Password</string>
     <string name="action_save_creds">Save Credentials</string>
@@ -12,4 +12,6 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="error_invalid_username">This username is invalid</string>
+    <string name="saved_creds">Credentials Saved</string>
 </resources>

@@ -23,13 +23,12 @@ import android.widget.TextView
 
 import java.util.ArrayList
 import android.Manifest.permission.READ_CONTACTS
+import android.content.SharedPreferences
 import android.util.Log
+import android.widget.Toast
 import com.goebl.david.Webb
 
 import kotlinx.android.synthetic.main.activity_login.*
-import java.io.BufferedReader
-import java.io.InputStream
-import java.io.InputStreamReader
 import java.net.*
 
 /**
@@ -45,6 +44,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         // Set up the login form.
+        readFromPrefs()
         populateAutoComplete()
         password.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
             if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
@@ -55,6 +55,13 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         })
 
         save_creds_btn.setOnClickListener { saveCreds() }
+    }
+
+    private fun readFromPrefs() {
+        val settings = getSharedPreferences("UserInfo", 0)
+        email.setText(settings.getString("email", "")!!.toString())
+        username.setText(settings.getString("username", "")!!.toString())
+        password.setText(settings.getString("password", "")!!.toString())
     }
 
     private fun populateAutoComplete() {
@@ -107,6 +114,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
 
         // Reset errors.
         email.error = null
+        username.error = null
         password.error = null
 
         // Store values at the time of the login attempt.
@@ -124,7 +132,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                 focusView = password
                 cancel = true
             } else if (!isPasswordValid(passwordStr)) {
-                password.error = getString(R.string.error_invalid_email)
+                password.error = getString(R.string.error_invalid_password)
                 focusView = password
                 cancel = true
             }
@@ -134,8 +142,8 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                 password.error = getString(R.string.error_field_required)
                 focusView = username
                 cancel = true
-            } else if (!isPasswordValid(userStr)) {
-                password.error = getString(R.string.error_invalid_email)
+            } else if (!isUsernameValid(userStr)) {
+                password.error = getString(R.string.error_invalid_username)
                 focusView = username
                 cancel = true
             }
@@ -156,8 +164,19 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true)
-            mLoginTask = CaptiveLoginTask(emailStr, userStr, passwordStr)
-            mLoginTask!!.execute(null as Void?)
+
+            val settings = getSharedPreferences("UserInfo", 0)
+            val editor = settings.edit()
+            editor.putString("username", userStr)
+            editor.putString("password", passwordStr)
+            editor.putString("email", emailStr)
+            editor.apply()
+
+            showProgress(false)
+            Toast.makeText(applicationContext, R.string.saved_creds,
+                Toast.LENGTH_SHORT).show()
+            /* mLoginTask = CaptiveLoginTask(emailStr, userStr, passwordStr)
+            mLoginTask!!.execute(null as Void?) */
         }
     }
 
@@ -169,6 +188,11 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
     private fun isPasswordValid(password: String): Boolean {
         //TODO: Replace this with your own logic
         return password.length > 4
+    }
+
+    private fun isUsernameValid(username: String): Boolean {
+        // TODO: impl
+        return true
     }
 
     /**
@@ -233,7 +257,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
     }
 
     private fun addEmailsToAutoComplete(emailAddressCollection: List<String>) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
+        // Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         val adapter = ArrayAdapter(this@LoginActivity,
                 android.R.layout.simple_dropdown_item_1line, emailAddressCollection)
 
@@ -246,26 +270,6 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                 ContactsContract.CommonDataKinds.Email.IS_PRIMARY)
         val ADDRESS = 0
         val IS_PRIMARY = 1
-    }
-
-    fun streamToString(inputStream: InputStream): String {
-
-        val bufferReader = BufferedReader(InputStreamReader(inputStream))
-        var line: String
-        var result = ""
-
-        try {
-            line = bufferReader.readLine()
-            while (line != null) {
-                result += line
-                line = bufferReader.readLine()
-            }
-            inputStream.close()
-        } catch (ex: Exception) {
-
-        }
-
-        return result
     }
 
     /**
@@ -310,7 +314,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                     .param("password", mPassword)
                     .param("email", mEmail)
                     .param("cmd", "authenticate")
-                    .param("agreementAck", "accept")
+                    .param("agreementAck", "Accept")
                     .ensureSuccess()
                     .asString()
                     .body
