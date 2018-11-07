@@ -24,12 +24,12 @@ import android.widget.TextView
 import java.util.ArrayList
 import android.Manifest.permission.READ_CONTACTS
 import android.util.Log
+import com.goebl.david.Webb
 
 import kotlinx.android.synthetic.main.activity_login.*
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.io.OutputStreamWriter
 import java.net.*
 
 /**
@@ -39,7 +39,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private var mAuthTask: CaptiveLoginTask? = null
+    private var mLoginTask: CaptiveLoginTask? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,7 +101,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
      * errors are presented and no actual login attempt is made.
      */
     private fun saveCreds() {
-        if (mAuthTask != null) {
+        if (mLoginTask != null) {
             return
         }
 
@@ -156,8 +156,8 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true)
-            mAuthTask = CaptiveLoginTask(emailStr, userStr, passwordStr)
-            mAuthTask!!.execute(null as Void?)
+            mLoginTask = CaptiveLoginTask(emailStr, userStr, passwordStr)
+            mLoginTask!!.execute(null as Void?)
         }
     }
 
@@ -270,7 +270,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
 
     /**
      * Represents an asynchronous login/registration task used to authenticate
-     * the user.
+     * the user on the captive portal
      */
     inner class CaptiveLoginTask internal constructor(private val mEmail: String, private val mUsername: String, private val mPassword: String) : AsyncTask<Void, Void, Boolean>() {
 
@@ -278,19 +278,17 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             try {
                 CookieHandler.setDefault(CookieManager(null, CookiePolicy.ACCEPT_ALL ))
 
+                var webb = Webb.create()
+                webb.setDefaultHeader(Webb.HDR_USER_AGENT, "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:63.0) Gecko/20100101 Firefox/63.0")
+
                 Log.v(TAG, "Captive task started... Detecting portal")
 
-                var urlConnection = URL("http://detectportal.firefox.com").openConnection() as HttpURLConnection
-
-                urlConnection.connect()
-                var res = streamToString(urlConnection.inputStream)
-                if (res == "success") {
+                var output = webb.get("http://detectportal.firefox.com").asString().body
+                if (output == "success") {
                     Log.v(TAG, "No captive detected! Yay!")
                     return true
                 }
-                urlConnection.disconnect()
-
-                var urlMatch = Regex("(http://detectportal.+)'").find(res)
+                var urlMatch = Regex("(http://detectportal.+)'").find(output)
 
                 if (urlMatch == null) {
                     Log.v(TAG, "Not aruba captive!")
@@ -300,23 +298,29 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                 var extractedUrl = urlMatch.groupValues[1]
                 Log.v(TAG, "Extracted url $extractedUrl")
 
-                while (true) {
-                    Log.v(TAG, "Follow redirect... $extractedUrl")
-                    urlConnection = URL(extractedUrl).openConnection() as HttpURLConnection
-                    urlConnection.connect()
-                    extractedUrl = urlConnection.getHeaderField("Location") ?: break
-                    urlConnection.disconnect()
-                }
+                var redir = webb.get(extractedUrl).followRedirects(true).ensureSuccess().uri
+                Log.v(TAG, "Final $redir")
 
-                Log.v(TAG, "Final $extractedUrl")
-
-                var post = Regex("\\\\?.+").replace(extractedUrl, "")
+                var post = Regex("\\\\?.+").replace(redir, "")
                 Log.v(TAG, "Post $post")
 
-                urlConnection.setDoOutput(true)
-                var writer = OutputStreamWriter(urlConnection.getOutputStream())
-                writer.write("")
-                writer.flush()
+                var finalRes = webb.post(post)
+                    .header("Referrer", redir)
+                    .param("user", mUsername)
+                    .param("password", mPassword)
+                    .param("email", mEmail)
+                    .param("cmd", "authenticate")
+                    .param("agreementAck", "accept")
+                    .ensureSuccess()
+                    .asString()
+                    .body
+
+                if (!finalRes.matches(Regex(".+Authentication successful-+"))) {
+                    Log.v(TAG, "Auth failed!")
+                    return false
+                }
+
+                return true
             } catch (ex: Exception) {
                 Log.e(TAG, ex.toString())
             }
@@ -325,20 +329,20 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         }
 
         override fun onPostExecute(success: Boolean?) {
-            mAuthTask = null
-            showProgress(false)
+            mLoginTask = null
+            /* showProgress(false)
 
             if (success!!) {
                 finish()
             } else {
                 password.error = getString(R.string.error_incorrect_password)
                 password.requestFocus()
-            }
+            } */
         }
 
         override fun onCancelled() {
-            mAuthTask = null
-            showProgress(false)
+            mLoginTask = null
+            // showProgress(false)
         }
     }
 
