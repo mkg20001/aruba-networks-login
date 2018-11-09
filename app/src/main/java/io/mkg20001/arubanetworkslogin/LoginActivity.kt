@@ -11,7 +11,6 @@ import android.content.CursorLoader
 import android.content.Loader
 import android.database.Cursor
 import android.net.Uri
-import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -23,13 +22,8 @@ import android.widget.TextView
 
 import java.util.ArrayList
 import android.Manifest.permission.READ_CONTACTS
-import android.content.SharedPreferences
-import android.util.Log
 import android.widget.Toast
-import com.goebl.david.Webb
-
 import kotlinx.android.synthetic.main.activity_login.*
-import java.net.*
 
 /**
  * A login screen that offers login via email/password.

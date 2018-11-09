@@ -1,12 +1,12 @@
 package io.mkg20001.arubanetworkslogin
 
+import android.content.SharedPreferences
 import android.os.AsyncTask
 import android.util.Log
 import com.goebl.david.Webb
 import java.net.CookieHandler
 import java.net.CookieManager
 import java.net.CookiePolicy
-
 
 /**
  * Represents an asynchronous login/registration task used to authenticate
@@ -74,5 +74,15 @@ class CaptiveLoginTask internal constructor(private val mEmail: String, private 
 
     override fun onCancelled() {
 
+    }
+
+    companion object {
+        fun run(settings: SharedPreferences): CaptiveLoginTask {
+            return CaptiveLoginTask(
+                settings.getString("email", "")!!.toString(),
+                settings.getString("username", "")!!.toString(),
+                settings.getString("password", "")!!.toString()
+            )
+        }
     }
 }
