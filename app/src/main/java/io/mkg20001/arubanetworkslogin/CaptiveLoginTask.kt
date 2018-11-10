@@ -21,28 +21,28 @@ class CaptiveLoginTask internal constructor(/*private val context: Context,*/ pr
             var webb = Webb.create()
             webb.setDefaultHeader(Webb.HDR_USER_AGENT, "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:63.0) Gecko/20100101 Firefox/63.0")
 
-            Log.v(LoginActivity.TAG, "Captive task started... Detecting portal")
+            Log.v(TAG, "Captive task started... Detecting portal")
 
             var output = webb.get("http://detectportal.firefox.com").asString().body
             if (output.matches(Regex("^success$"))) {
-                Log.v(LoginActivity.TAG, "No captive detected! Yay!")
+                Log.v(TAG, "No captive detected! Yay!")
                 return true
             }
             var urlMatch = Regex("(http://detectportal.+)'").find(output)
 
             if (urlMatch == null) {
-                Log.v(LoginActivity.TAG, "Not aruba captive!")
+                Log.v(TAG, "Not aruba captive!")
                 return false
             }
 
             var extractedUrl = urlMatch.groupValues[1]
-            Log.v(LoginActivity.TAG, "Extracted url $extractedUrl")
+            Log.v(TAG, "Extracted url $extractedUrl")
 
             var redir = webb.get(extractedUrl).followRedirects(true).ensureSuccess().uri
-            Log.v(LoginActivity.TAG, "Final $redir")
+            Log.v(TAG, "Final $redir")
 
             var post = Regex("\\\\?.+").replace(redir, "")
-            Log.v(LoginActivity.TAG, "Post $post")
+            Log.v(TAG, "Post $post")
 
             var finalRes = webb.post(post)
                 .header("Referrer", redir)
@@ -56,19 +56,20 @@ class CaptiveLoginTask internal constructor(/*private val context: Context,*/ pr
                 .body
 
             if (!finalRes.matches(Regex(".+Authentication successful-+"))) {
-                Log.v(LoginActivity.TAG, "Auth failed!")
+                Log.v(TAG, "Auth failed!")
                 return false
             }
 
             return true
         } catch (ex: Exception) {
-            Log.e(LoginActivity.TAG, ex.toString())
+            Log.e(TAG, ex.toString())
         }
 
         return false
     }
 
     override fun onPostExecute(success: Boolean) {
+        Log.v(TAG, "Finished, success $success")
         /* if (!success) {
             Toast.makeText(context.applicationContext, R.string.login_fail,
                 Toast.LENGTH_LONG).show()
@@ -76,10 +77,12 @@ class CaptiveLoginTask internal constructor(/*private val context: Context,*/ pr
     }
 
     override fun onCancelled() {
-
+        Log.v(TAG, "Cancelled")
     }
 
     companion object {
+        private val TAG = Utils.TAG
+        
         fun run(context: Context): CaptiveLoginTask {
             val settings = context.getSharedPreferences("UserInfo", 0)
             val task = CaptiveLoginTask(

@@ -24,15 +24,11 @@ import java.util.ArrayList
 import android.Manifest.permission.READ_CONTACTS
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_login.*
-import android.content.Context.JOB_SCHEDULER_SERVICE
-import android.support.v4.content.ContextCompat.getSystemService
 import android.app.job.JobScheduler
 import android.app.job.JobInfo
 import android.content.ComponentName
 import android.content.Context
 import android.support.annotation.RequiresApi
-
-
 
 /**
  * A login screen that offers login via email/password.
@@ -292,15 +288,9 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
     }
 
     companion object {
-
         /**
          * Id to identity READ_CONTACTS permission request.
          */
         private val REQUEST_READ_CONTACTS = 0
-
-        /**
-         * Tag showed in logs
-         */
-        val TAG = "ARUBA_LOGIN"
     }
 }

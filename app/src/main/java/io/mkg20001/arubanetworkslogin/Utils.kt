@@ -8,8 +8,10 @@ import android.support.annotation.RequiresApi
 import android.util.Log
 import android.widget.Toast
 
-
 object Utils {
+    /**
+     * Tag showed in logs
+     */
     val TAG = "ARUBA_LOGIN"
 
     fun getWifi(connectivity: ConnectivityManager): Network? {
@@ -48,6 +50,10 @@ object Utils {
          */
     }
 
+    fun wifiConnected(connectivity: ConnectivityManager): Boolean {
+        return getWifi(connectivity) != null || checkWifiBelow21(connectivity)
+    }
+
     fun checkWifiBelow21(connectivity: ConnectivityManager): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             return connectivity.activeNetworkInfo.type == ConnectivityManager.TYPE_WIFI
@@ -55,8 +61,12 @@ object Utils {
         return false
     }
 
+    fun getConn(context: Context): ConnectivityManager {
+        return context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    }
+
     private fun bindToWifiInner(context: Context): Boolean {
-        val connectivity = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivity = getConn(context)
         val network = getWifi(connectivity)
 
         if (network != null) {
