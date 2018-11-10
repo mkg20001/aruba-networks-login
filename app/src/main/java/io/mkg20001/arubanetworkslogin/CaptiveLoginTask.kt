@@ -78,11 +78,13 @@ class CaptiveLoginTask internal constructor(private val mEmail: String, private 
 
     companion object {
         fun run(settings: SharedPreferences): CaptiveLoginTask {
-            return CaptiveLoginTask(
+            val task = CaptiveLoginTask(
                 settings.getString("email", "")!!.toString(),
                 settings.getString("username", "")!!.toString(),
                 settings.getString("password", "")!!.toString()
             )
+            task.execute(null as Void?)
+            return task
         }
     }
 }

@@ -24,6 +24,15 @@ import java.util.ArrayList
 import android.Manifest.permission.READ_CONTACTS
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_login.*
+import android.content.Context.JOB_SCHEDULER_SERVICE
+import android.support.v4.content.ContextCompat.getSystemService
+import android.app.job.JobScheduler
+import android.app.job.JobInfo
+import android.content.ComponentName
+import android.content.Context
+import android.support.annotation.RequiresApi
+
+
 
 /**
  * A login screen that offers login via email/password.
@@ -49,6 +58,24 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         })
 
         save_creds_btn.setOnClickListener { saveCreds() }
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            scheduleJob()
+        }
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private fun scheduleJob() {
+        val myJob = JobInfo.Builder(0, ComponentName(this, WifiService::class.java!!))
+            .setRequiresCharging(false)
+            .setMinimumLatency(1000)
+            .setOverrideDeadline(2000)
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+            .setPersisted(true)
+            .build()
+
+        val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        jobScheduler.schedule(myJob)
     }
 
     private fun readFromPrefs() {
@@ -169,8 +196,6 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             showProgress(false)
             Toast.makeText(applicationContext, R.string.saved_creds,
                 Toast.LENGTH_SHORT).show()
-            /* mLoginTask = CaptiveLoginTask(emailStr, userStr, passwordStr)
-            mLoginTask!!.execute(null as Void?) */
         }
     }
 
