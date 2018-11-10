@@ -20,6 +20,7 @@ class CaptiveLoginTask internal constructor(/*private val context: Context,*/ pr
 
             var webb = Webb.create()
             webb.setDefaultHeader(Webb.HDR_USER_AGENT, "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:63.0) Gecko/20100101 Firefox/63.0")
+            UtilsJava.disableSecurity(webb) // why, just goddamn why does this even need to exist
 
             Log.v(TAG, "Captive task started... Detecting portal")
 
