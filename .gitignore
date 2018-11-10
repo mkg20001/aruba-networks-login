@@ -11,3 +11,4 @@
 .externalNativeBuild
 .idea
 *.bak
+app/release

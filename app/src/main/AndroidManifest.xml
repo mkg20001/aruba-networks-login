@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <!-- Required on api < 21 if you are using setRequiredNetworkType(int) -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <!-- Required on all api levels if you are using setPersisted(true) -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 

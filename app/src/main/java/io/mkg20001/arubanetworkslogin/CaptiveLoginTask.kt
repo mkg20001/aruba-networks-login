@@ -1,6 +1,6 @@
 package io.mkg20001.arubanetworkslogin
 
-import android.content.SharedPreferences
+import android.content.Context
 import android.os.AsyncTask
 import android.util.Log
 import com.goebl.david.Webb
@@ -12,7 +12,7 @@ import java.net.CookiePolicy
  * Represents an asynchronous login/registration task used to authenticate
  * the user on the captive portal
  */
-class CaptiveLoginTask internal constructor(private val mEmail: String, private val mUsername: String, private val mPassword: String) : AsyncTask<Void, Void, Boolean>() {
+class CaptiveLoginTask internal constructor(/*private val context: Context,*/ private val mEmail: String, private val mUsername: String, private val mPassword: String) : AsyncTask<Void, Void, Boolean>() {
 
     override fun doInBackground(vararg params: Void): Boolean? {
         try {
@@ -24,7 +24,7 @@ class CaptiveLoginTask internal constructor(private val mEmail: String, private 
             Log.v(LoginActivity.TAG, "Captive task started... Detecting portal")
 
             var output = webb.get("http://detectportal.firefox.com").asString().body
-            if (output == "success") {
+            if (output.matches(Regex("^success$"))) {
                 Log.v(LoginActivity.TAG, "No captive detected! Yay!")
                 return true
             }
@@ -68,8 +68,11 @@ class CaptiveLoginTask internal constructor(private val mEmail: String, private 
         return false
     }
 
-    override fun onPostExecute(success: Boolean?) {
-
+    override fun onPostExecute(success: Boolean) {
+        /* if (!success) {
+            Toast.makeText(context.applicationContext, R.string.login_fail,
+                Toast.LENGTH_LONG).show()
+        } */
     }
 
     override fun onCancelled() {
@@ -77,8 +80,10 @@ class CaptiveLoginTask internal constructor(private val mEmail: String, private 
     }
 
     companion object {
-        fun run(settings: SharedPreferences): CaptiveLoginTask {
+        fun run(context: Context): CaptiveLoginTask {
+            val settings = context.getSharedPreferences("UserInfo", 0)
             val task = CaptiveLoginTask(
+                // context.applicationContext,
                 settings.getString("email", "")!!.toString(),
                 settings.getString("username", "")!!.toString(),
                 settings.getString("password", "")!!.toString()

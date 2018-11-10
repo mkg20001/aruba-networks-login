@@ -14,4 +14,8 @@
     </string>
     <string name="error_invalid_username">This username is invalid</string>
     <string name="saved_creds">Credentials Saved</string>
+    <string name="not_on_wifi">Captive Login will fail because mobile data is getting used. Disable mobile data and try
+        again.
+    </string>
+    <string name="login_fail">Hotspot login failed! Check credentials!</string>
 </resources>

@@ -13,4 +13,8 @@
     </string>
     <string name="error_invalid_username">Der Benutzername ist ungültig</string>
     <string name="saved_creds">Zugangsdaten gespeichert</string>
+    <string name="not_on_wifi">Hotspot login wird fehlschlagen da mobile daten verwendet verden. Bitte deaktivere diese
+        und versuche es erneut.
+    </string>
+    <string name="login_fail">Hotspot login fehlgeschlagen! Überprufe die Zugangsdaten!</string>
 </resources>
