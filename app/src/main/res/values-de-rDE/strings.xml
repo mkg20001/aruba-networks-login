@@ -17,4 +17,12 @@
         und versuche es erneut.
     </string>
     <string name="login_fail">Hotspot login fehlgeschlagen! Überprufe die Zugangsdaten!</string>
+    <string name="res_tpl">" * Login um %1"</string>
+    <string name="r_ok_success">Erfolgreich</string>
+    <string name="r_ok_no_captive">Erfolgreich, keine Anmeldung benötigt</string>
+    <string name="r_err_not_aruba">Fehlgeschlagen, WLAN nicht von Aruba Networks</string>
+    <string name="r_err_invalid_creds">Fehlgeschlagen, ungültige Zugangsdaten</string>
+    <string name="r_err_other">Fehlgeschlagen, unbekannter fehler</string>
+    <string name="res_empty">Keine Login-Versuche bisher</string>
+    <string name="res_title">Login-Versuche und Ergebnisse:</string>
 </resources>

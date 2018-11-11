@@ -18,4 +18,12 @@
         again.
     </string>
     <string name="login_fail">Hotspot login failed! Check credentials!</string>
+    <string name="res_tpl">" * Login at %1"</string>
+    <string name="r_ok_success">Successful</string>
+    <string name="r_ok_no_captive">Successful, no login needed</string>
+    <string name="r_err_not_aruba">Failed, WiFi not from Aruba Networks</string>
+    <string name="r_err_invalid_creds">Failed, invalid credentials</string>
+    <string name="r_err_other">Failed, unkown error</string>
+    <string name="res_empty">No login attempts yet</string>
+    <string name="res_title">Login attempts and results:</string>
 </resources>

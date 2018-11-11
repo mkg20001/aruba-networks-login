@@ -3,6 +3,7 @@ package io.mkg20001.arubanetworkslogin
 import android.content.Context
 import android.os.AsyncTask
 import android.util.Log
+import android.widget.Toast
 import com.goebl.david.Webb
 import java.net.CookieHandler
 import java.net.CookieManager
@@ -12,7 +13,7 @@ import java.net.CookiePolicy
  * Represents an asynchronous login/registration task used to authenticate
  * the user on the captive portal
  */
-class CaptiveLoginTask internal constructor(/*private val context: Context,*/ private val mEmail: String, private val mUsername: String, private val mPassword: String) : AsyncTask<Void, Void, Boolean>() {
+class CaptiveLoginTask internal constructor(private val context: Context, private val mEmail: String, private val mUsername: String, private val mPassword: String) : AsyncTask<Void, Void, Boolean>() {
 
     override fun doInBackground(vararg params: Void): Boolean? {
         try {
@@ -27,12 +28,14 @@ class CaptiveLoginTask internal constructor(/*private val context: Context,*/ pr
             var output = webb.get("http://detectportal.firefox.com").asString().body
             if (output.matches(Regex("^success$"))) {
                 Log.v(TAG, "No captive detected! Yay!")
+                res = RESULT_TYPE.OK_NO_CAPTIVE
                 return true
             }
             var urlMatch = Regex("(http://detectportal.+)'").find(output)
 
             if (urlMatch == null) {
                 Log.v(TAG, "Not aruba captive!")
+                res = RESULT_TYPE.ERROR_NOT_ARUBA
                 return false
             }
 
@@ -58,9 +61,11 @@ class CaptiveLoginTask internal constructor(/*private val context: Context,*/ pr
 
             if (!finalRes.matches(Regex(".+Authentication successful-+"))) {
                 Log.v(TAG, "Auth failed!")
+                res = RESULT_TYPE.ERROR_INVALID_CREDS
                 return false
             }
 
+            res = RESULT_TYPE.OK_SUCCESS
             return true
         } catch (ex: Exception) {
             Log.e(TAG, ex.toString())
@@ -70,11 +75,25 @@ class CaptiveLoginTask internal constructor(/*private val context: Context,*/ pr
     }
 
     override fun onPostExecute(success: Boolean) {
-        Log.v(TAG, "Finished, success $success")
-        /* if (!success) {
+        Log.v(TAG, "Finished, success $success, result $res")
+
+        val event = LoginResult.create(res).str
+        val settings = context.getSharedPreferences("Logs", 0)
+        var logs = settings.getString("logs", "")!!.toString().split(",")
+            .filter { !it.isEmpty() }
+            .plus(event)
+            .reversed()
+        while(logs.size > 10) {
+            logs = logs.dropLast(10)
+        }
+        val editor = settings.edit()
+        editor.putString("logs", logs.reversed().joinToString(","))
+        editor.apply()
+
+        if (!success) {
             Toast.makeText(context.applicationContext, R.string.login_fail,
                 Toast.LENGTH_LONG).show()
-        } */
+        }
     }
 
     override fun onCancelled() {
@@ -83,11 +102,12 @@ class CaptiveLoginTask internal constructor(/*private val context: Context,*/ pr
 
     companion object {
         private val TAG = Utils.TAG
+        var res: RESULT_TYPE = RESULT_TYPE.ERROR_OTHER
         
         fun run(context: Context): CaptiveLoginTask {
             val settings = context.getSharedPreferences("UserInfo", 0)
             val task = CaptiveLoginTask(
-                // context.applicationContext,
+                context,
                 settings.getString("email", "")!!.toString(),
                 settings.getString("username", "")!!.toString(),
                 settings.getString("password", "")!!.toString()

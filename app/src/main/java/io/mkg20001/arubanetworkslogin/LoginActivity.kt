@@ -20,7 +20,6 @@ import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import android.widget.TextView
 
-import java.util.ArrayList
 import android.Manifest.permission.READ_CONTACTS
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_login.*
@@ -29,6 +28,7 @@ import android.app.job.JobInfo
 import android.content.ComponentName
 import android.content.Context
 import android.support.annotation.RequiresApi
+import java.util.*
 
 /**
  * A login screen that offers login via email/password.
@@ -44,6 +44,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         setContentView(R.layout.activity_login)
         // Set up the login form.
         readFromPrefs()
+        readLogsFromPrefs()
         populateAutoComplete()
         password.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
             if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
@@ -57,6 +58,25 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             scheduleJob()
         }
+    }
+
+    private fun readLogsFromPrefs() {
+        val settings = getSharedPreferences("Logs", 0)
+        var logs = settings.getString("logs", "")!!.toString().split(",")
+            .filter { !it.isEmpty() }
+            .map { LoginResult.load(it) }
+            .map {
+                getString(R.string.res_tpl)
+                    .replace("%1", it.occured.toString())
+                    .plus("\n => ")
+                    .plus(getString(it.result.text))
+            }
+            .joinToString("\n")
+
+        if (logs.isBlank()) {
+            logs = getString(R.string.res_empty)
+        }
+        logsBox.text = logs
     }
 
 
