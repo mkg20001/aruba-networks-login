@@ -1,0 +1,2 @@
+* Passendes farbschema hinzugefügt
+* Die letzten 10 login versuche werden nun protokolliert

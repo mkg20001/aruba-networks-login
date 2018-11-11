@@ -1,0 +1,2 @@
+* Added matching color scheme
+* Now logs last 10 successfull attempts

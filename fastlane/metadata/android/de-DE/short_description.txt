@@ -1,0 +1,1 @@
+App die die automatische anmeldung in aruba networks hotspots ermöglicht

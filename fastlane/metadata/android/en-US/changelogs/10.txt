@@ -1,0 +1,1 @@
+ Added fixes for android nougat

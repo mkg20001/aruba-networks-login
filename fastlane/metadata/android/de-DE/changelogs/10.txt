@@ -1,0 +1,1 @@
+Bugfixes für android nougat

@@ -1,0 +1,1 @@
+ Now it tries to use wifi instead of mobile data
