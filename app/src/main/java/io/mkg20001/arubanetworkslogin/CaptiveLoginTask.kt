@@ -25,8 +25,8 @@ class CaptiveLoginTask internal constructor(private val context: Context, privat
 
             Log.v(TAG, "Captive task started... Detecting portal")
 
-            var output = webb.get("http://detectportal.firefox.com").asString().body
-            if (output.matches(Regex("^success$"))) {
+            var output = webb.get("http://detectportal.firefox.com").asString().body.toString()
+            if (output.trim().equals("success", true)) {
                 Log.v(TAG, "No captive detected! Yay!")
                 res = RESULT_TYPE.OK_NO_CAPTIVE
                 return true
