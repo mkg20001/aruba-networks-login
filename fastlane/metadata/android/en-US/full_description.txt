@@ -1,1 +1,6 @@
 App to automatically login into arubanetworks.com hotspots
+
+It allows storing the credentials for the hotspot
+and automatically using them if it detects a connection to
+an applicable hotspot
+
