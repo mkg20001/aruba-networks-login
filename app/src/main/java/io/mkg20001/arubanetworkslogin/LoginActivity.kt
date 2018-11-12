@@ -28,6 +28,8 @@ import android.app.job.JobInfo
 import android.content.ComponentName
 import android.content.Context
 import android.support.annotation.RequiresApi
+import io.sentry.Sentry
+import io.sentry.android.AndroidSentryClientFactory
 import java.util.*
 
 /**
@@ -40,6 +42,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
     private var mLoginTask: CaptiveLoginTask? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Sentry.init("https://c8320a1568c24fb5be10fc429bc5e2a0@sentry.io/1321461", AndroidSentryClientFactory(applicationContext))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         // Set up the login form.

@@ -34,4 +34,8 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    // sentry'n'stuff
+    compile 'io.sentry:sentry-android:1.7.10'
+    compile 'org.slf4j:slf4j-nop:1.7.25'
 }

@@ -5,6 +5,7 @@ import android.os.AsyncTask
 import android.util.Log
 import android.widget.Toast
 import com.goebl.david.Webb
+import io.sentry.Sentry
 import java.net.CookieHandler
 import java.net.CookieManager
 import java.net.CookiePolicy
@@ -68,6 +69,7 @@ class CaptiveLoginTask internal constructor(private val context: Context, privat
             res = RESULT_TYPE.OK_SUCCESS
             return true
         } catch (ex: Exception) {
+            Sentry.capture(ex)
             Log.e(TAG, ex.toString())
         }
 
