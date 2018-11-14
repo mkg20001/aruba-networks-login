@@ -10,8 +10,8 @@ android {
         applicationId "io.mkg20001.arubanetworkslogin"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 4000 // 004000
-        versionName "0.4"
+        versionCode 5000 // 005000
+        versionName "0.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

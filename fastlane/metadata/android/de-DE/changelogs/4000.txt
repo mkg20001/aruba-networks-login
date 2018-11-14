@@ -1,0 +1,2 @@
+* Bugfix: In den logs wird jetzt nicht mehr "fehler: wifi nicht von aruba" sondern "erfolg, kein login nötig" angezeigt
+* Fehler werden nun automatisch an uns gemeldet

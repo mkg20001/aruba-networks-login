@@ -1,0 +1,2 @@
+* Fixed a bug that showed Wifi not from aruba, even though it should list sucess, no captive in log
+* Added automatic error reporting :tada:
