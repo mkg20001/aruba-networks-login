@@ -31,11 +31,11 @@ platform :android do
   end
 
   desc "Deploy a new version to the Google Play"
-  lane :deploy-beta do
-    gradle(task: "clean assembleRelease")
-    changelog_from_git_commits(
-      tag_match_pattern: "v*", // filter and pick release/ only tags
-      between: 'two-last-tags', // figure out two most recent tags
+  lane :deploy do
+    # gradle(task: "clean assembleRelease")
+    most_recent_tags = sh("git tag | grep '^v' | sort -r | head -2").split("\n")
+    commit_history = changelog_from_git_commits(
+     between: most_recent_tags
     )
     upload_to_play_store(track: 'beta')
   end
