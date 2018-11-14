@@ -46,7 +46,7 @@ class CaptiveLoginTask internal constructor(private val context: Context, privat
             var redir = webb.get(extractedUrl).followRedirects(true).ensureSuccess().uri
             Log.v(TAG, "Final $redir")
 
-            var post = Regex("\\\\?.+").replace(redir, "")
+            var post = Regex("\\?.+").replace(redir, "")
             Log.v(TAG, "Post $post")
 
             var finalRes = webb.post(post)
