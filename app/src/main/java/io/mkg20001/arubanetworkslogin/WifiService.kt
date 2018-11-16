@@ -25,7 +25,6 @@ class WifiService : JobService() {
         return Service.START_STICKY
     }
 
-
     override fun onStartJob(params: JobParameters): Boolean {
         Log.i(TAG, "onStartJob")
         recv = WifiReceiver()
