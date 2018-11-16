@@ -60,7 +60,7 @@ class CaptiveLoginTask internal constructor(private val context: Context, privat
                 .asString()
                 .body
 
-            if (!finalRes.matches(Regex(".+Authentication successful-+"))) {
+            if (!finalRes.matches(Regex(".+Authentication successful.+"))) {
                 Log.v(TAG, "Auth failed!")
                 res = RESULT_TYPE.ERROR_INVALID_CREDS
                 return false
